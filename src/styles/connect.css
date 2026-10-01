@@ -1,0 +1,60 @@
+/* =============================================================================
+   YUDIA CONNECT — "Play on…" sheet, remote, bottom bar
+   ============================================================================= */
+.cx-backdrop { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 9850; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(5, 7, 12, 0.78); }
+.cx { width: min(520px, 100%); max-height: min(760px, 100%); display: flex; flex-direction: column; gap: 14px; padding: 22px; border-radius: 22px; background: #0f131d; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7); }
+.cx__head { display: flex; align-items: center; justify-content: space-between; }
+.cx__title { margin: 0; display: flex; align-items: center; gap: 10px; font-size: 1.4rem; font-weight: 800; color: #fff; }
+
+.cx__remote { display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 18px; background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.18), rgba(255, 255, 255, 0.04)); border: 1px solid rgba(var(--accent-rgb), 0.35); }
+.cx__now { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.cx__art { width: 64px; height: 64px; flex-shrink: 0; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.5); }
+.cx__art img { width: 100%; height: 100%; object-fit: cover; }
+.cx__nowtext { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
+.cx__on { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.cx__song { font-size: 1.1rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cx__artist { font-size: 0.88rem; color: rgba(255, 255, 255, 0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cx__bar { position: relative; height: 6px; margin-top: 8px; border-radius: 3px; background: rgba(255, 255, 255, 0.18); cursor: pointer; overflow: hidden; }
+.cx__bar > span { display: block; height: 100%; background: var(--accent); border-radius: 3px; transition: width 1s linear; }
+.cx__times { display: flex; justify-content: space-between; font-size: 0.8rem; color: rgba(255, 255, 255, 0.55); font-variant-numeric: tabular-nums; }
+.cx__controls { display: flex; justify-content: center; align-items: center; gap: 18px; }
+.cx__btn { width: 52px; height: 52px; padding: 0 !important; border-radius: 50% !important; justify-content: center; }
+.cx__btn--main { width: 66px; height: 66px; background: #fff !important; color: #000 !important; }
+.cx__btn--sm { width: 40px; height: 40px; }
+.cx__volume { display: flex; align-items: center; gap: 12px; }
+.cx__volbar { flex: 1; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, 0.15); overflow: hidden; }
+.cx__volbar > span { display: block; height: 100%; background: #fff; transition: width 0.3s; }
+
+.cx__list { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; min-height: 0; padding: 4px; margin: -4px; }
+.cx__dev { width: 100%; justify-content: flex-start !important; gap: 14px !important; padding: 10px 12px !important; border-radius: 14px !important; text-align: left; }
+.cx__dev.is-on { color: var(--accent) !important; border-color: rgba(var(--accent-rgb), 0.5) !important; }
+.cx__devicon { width: 40px; height: 40px; flex-shrink: 0; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.08); }
+.cx__devtext { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.cx__devname { font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cx__devsub { font-size: 0.82rem; font-weight: 500; color: rgba(255, 255, 255, 0.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cx__note { margin: 6px 4px; color: rgba(255, 255, 255, 0.55); font-size: 0.9rem; }
+.cx__note--err { color: #ffb020; }
+
+/* bottom bar while another device is chosen */
+.cx-bar {
+  position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 8750;
+  width: min(560px, calc(100% - 16px)); height: 68px; display: flex; align-items: center; gap: 12px; padding: 0 8px 0 8px;
+  border-radius: 16px; overflow: hidden; cursor: pointer;
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.35), rgba(22, 26, 38, 0.96) 60%);
+  border: 1px solid rgba(var(--accent-rgb), 0.45); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+.cx-bar__progress { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--accent); transition: width 1s linear; }
+.cx-bar__art { width: 50px; height: 50px; }
+.cx-bar__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cx-bar__title { font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cx-bar__on { display: inline-flex; align-items: center; gap: 5px; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+.cx-bar__btn { width: 46px; height: 46px; border: none; border-radius: 50%; background: transparent; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.is-phone .cx-bar { bottom: calc(8px + env(safe-area-inset-bottom)); }
+
+/* rename this device */
+.cx__thisrow { display: flex; gap: 8px; align-items: stretch; }
+.cx__thisrow > .cx__dev { flex: 1; min-width: 0; }
+.cx__rename { width: 48px; padding: 0 !important; border-radius: 14px !important; justify-content: center; flex-shrink: 0; }
+.cx__renamebox { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.04); }
+.cx__renamerow { display: flex; gap: 8px; align-items: center; }
+.cx__renamerow > :first-child { flex: 1; }

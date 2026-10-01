@@ -1,0 +1,11 @@
+node_modules/
+dist/
+dist-web/
+*.wgt
+*.p12
+.env
+.env.*
+!.env.example
+public/.tizen-rds/
+public/Debug/
+.claude/

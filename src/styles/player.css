@@ -1,0 +1,259 @@
+/* =============================================================================
+   FULL-SCREEN MUSIC PLAYER (Apple Music style)
+   One grid whose areas change per mode; MusicPlayer.tsx animates the cover / title / controls between
+   their old and new places (FLIP), so they glide instead of jumping.
+   ============================================================================= */
+.mp {
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  z-index: 8900;
+  display: grid;
+  column-gap: 72px;
+  row-gap: 22px;
+  padding: 30px 6vw 44px;
+  overflow: hidden;
+  color: #fff;
+  background: #05070a;
+  animation: mpIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.mp.is-closing { animation: mpOut 0.38s cubic-bezier(0.55, 0, 0.8, 0.3) both; pointer-events: none; }
+@keyframes mpIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes mpOut { from { transform: translateY(0); } to { transform: translateY(100%); } }
+
+/* ----- layouts per mode ----- */
+.mp--player {
+  grid-template-columns: min(440px, 42vh) minmax(0, 580px);
+  grid-template-rows: auto 1fr auto auto 1fr;
+  grid-template-areas: 'top top' '. .' 'art meta' 'art ctrl' '. .';
+  justify-content: center;
+}
+.mp--lyrics,
+.mp--queue {
+  grid-template-columns: min(300px, 30vh) minmax(0, 1fr);
+  grid-template-rows: auto auto auto 1fr auto;
+  grid-template-areas: 'top top' 'art panel' 'meta panel' '. panel' 'ctrl ctrl';
+  column-gap: 64px;
+}
+
+/* ----- background ----- */
+.mp__bg {
+  position: absolute;
+  top: -120px; right: -120px; bottom: -120px; left: -120px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(80px) saturate(200%) brightness(0.5);
+  transform: scale(1.2);
+  animation: mpFade 1.2s ease both;
+  pointer-events: none;
+}
+.mp__shade { position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: linear-gradient(to bottom, rgba(5,7,10,0.25), rgba(5,7,10,0.6)); pointer-events: none; }
+@keyframes mpFade { from { opacity: 0; } to { opacity: 1; } }
+.mp > *:not(.mp__bg):not(.mp__shade) { position: relative; z-index: 1; }
+
+/* ----- top bar ----- */
+.mp__top { grid-area: top; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.mp__close { padding: 10px 18px 10px 12px !important; border-radius: 999px !important; }
+.mp__top-spacer { width: 140px; flex-shrink: 1; }
+.mp__seg {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.mp__seg-pill {
+  position: absolute;
+  top: 4px; left: 4px;
+  width: calc((100% - 8px) / 3);
+  height: calc(100% - 8px);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mp__seg-btn {
+  position: relative;
+  z-index: 1;
+  justify-content: center;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 999px !important;
+  padding: 9px 22px !important;
+  font-weight: 700 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  transition: color 0.3s ease, transform 0.2s ease !important;
+}
+.mp__seg-btn.is-active { color: #000 !important; }
+.mp__seg-btn.focused { transform: scale(1.06); box-shadow: 0 0 0 3px var(--accent) !important; }
+
+/* ----- cover ----- */
+.mp__art { grid-area: art; width: 100%; align-self: center; }
+.mp--lyrics .mp__art, .mp--queue .mp__art { align-self: start; }
+.mp__art-inner {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  border-radius: 22px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7);
+  animation: mpArtIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.mp__art-inner img, .mp__art-inner svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+.mp__art-inner svg { padding: 30%; color: rgba(255, 255, 255, 0.3); }
+@keyframes mpArtIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: none; } }
+/* cover breathes a little bigger while playing, smaller when paused (Apple Music) */
+.mp__art-inner { transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+.mp.is-paused .mp__art-inner { transform: scale(0.9); }
+
+/* ----- title ----- */
+.mp__meta { grid-area: meta; min-width: 0; align-self: end; }
+.mp--lyrics .mp__meta, .mp--queue .mp__meta { align-self: start; }
+.mp__title {
+  margin: 0;
+  font-size: 2.8rem;
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  animation: mpTextIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.mp__artist { margin: 8px 0 0; font-size: 1.35rem; color: rgba(255, 255, 255, 0.72); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mp__artist span { color: rgba(255, 255, 255, 0.5); }
+.mp--lyrics .mp__title, .mp--queue .mp__title { font-size: 1.5rem; }
+.mp--lyrics .mp__artist, .mp--queue .mp__artist { font-size: 1rem; margin-top: 4px; }
+@keyframes mpTextIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ----- progress bar + buttons ----- */
+.mp__controls { grid-area: ctrl; width: 100%; align-self: start; display: flex; flex-direction: column; gap: 8px; }
+.mp--lyrics .mp__controls, .mp--queue .mp__controls { justify-self: center; max-width: 900px; }
+.mp__scrub { position: relative; height: 8px; margin: 8px 0 0; border-radius: 4px; background: rgba(255, 255, 255, 0.2); cursor: pointer; }
+.mp__scrub::before { content: ''; position: absolute; top: -10px; bottom: -10px; left: 0; right: 0; } /* bigger touch target */
+.mp__scrub-fill { height: 100%; border-radius: 4px; background: #fff; transition: width 0.25s linear; }
+.mp__scrub-knob { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); transition: left 0.25s linear, transform 0.2s; }
+.mp__scrub:hover .mp__scrub-knob { transform: scale(1.3); }
+.mp__times { display: flex; justify-content: space-between; font-size: 0.88rem; color: rgba(255, 255, 255, 0.6); font-variant-numeric: tabular-nums; }
+.mp__transport { display: flex; align-items: center; justify-content: center; gap: 22px; margin-top: 6px; }
+.mp__icon, .mp__play {
+  justify-content: center;
+  border: none !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  width: 52px; height: 52px;
+  background: transparent !important;
+}
+.mp__icon--lg { width: 64px; height: 64px; }
+.mp__icon.is-on { color: var(--accent) !important; }
+.mp__play { width: 84px; height: 84px; background: #fff !important; color: #000 !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); }
+.mp__icon.focused { background: rgba(255, 255, 255, 0.18) !important; }
+.mp__play.focused { box-shadow: 0 0 0 4px var(--accent), 0 10px 30px rgba(0, 0, 0, 0.45) !important; }
+
+/* ----- lyrics / queue panel ----- */
+.mp__panel { grid-area: panel; min-height: 0; display: flex; flex-direction: column; gap: 14px; animation: mpPanelIn 0.6s 0.12s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes mpPanelIn { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+.mp__panel-title { margin: 0; font-size: 1.6rem; font-weight: 800; }
+.mp__queue { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 6px; }
+.mp__lyrics {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  padding: 18vh 12px;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 78%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 78%, transparent 100%);
+}
+.mp__lyrics::-webkit-scrollbar { display: none; }
+.mp__lyrics-empty { margin: auto; font-size: 1.4rem; font-weight: 700; color: rgba(255, 255, 255, 0.5); text-align: center; }
+.mp__line {
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: rgba(255, 255, 255, 0.85);
+  transform-origin: left center;
+  transition: color 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease, filter 0.45s ease;
+}
+.mp__lyrics.is-synced .mp__line { color: rgba(255, 255, 255, 0.32); cursor: pointer; }
+.mp__lyrics.is-synced .mp__line.is-past { color: rgba(255, 255, 255, 0.45); }
+.mp__lyrics.is-synced .mp__line.is-active { color: #fff; transform: scale(1.06); text-shadow: 0 0 24px rgba(255, 255, 255, 0.35); }
+.mp__lyrics.is-synced .mp__line:not(.is-active) { filter: blur(0.6px); }
+.mp__lyrics.is-synced .mp__line:hover { color: rgba(255, 255, 255, 0.75); filter: none; }
+.mp__line.is-gap { min-height: 1em; }
+
+/* ----- slow TV: no blur-heavy effects ----- */
+.perf-lite .mp__bg { filter: blur(40px) brightness(0.45); }
+.perf-lite .mp__lyrics.is-synced .mp__line:not(.is-active) { filter: none; }
+.perf-lite .mp__lyrics { -webkit-mask-image: none; mask-image: none; }
+
+/* ----- phone ----- */
+.is-phone .mp { padding: calc(14px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom)); column-gap: 14px; row-gap: 16px; }
+.is-phone .mp--player {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto auto auto 1fr;
+  grid-template-areas: 'top' '.' 'art' 'meta' 'ctrl' '.';
+}
+.is-phone .mp--player .mp__art { width: min(100%, 46vh); justify-self: center; }
+.is-phone .mp--lyrics, .is-phone .mp--queue {
+  grid-template-columns: 64px minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-areas: 'top top' 'art meta' 'panel panel' 'ctrl ctrl';
+}
+.is-phone .mp--lyrics .mp__meta, .is-phone .mp--queue .mp__meta { align-self: center; }
+.is-phone .mp__art-inner { border-radius: 14px; }
+.is-phone .mp--lyrics .mp__art-inner, .is-phone .mp--queue .mp__art-inner { border-radius: 8px; }
+.is-phone .mp__title { font-size: 1.6rem; }
+.is-phone .mp__artist { font-size: 1rem; }
+.is-phone .mp--lyrics .mp__title, .is-phone .mp--queue .mp__title { font-size: 1.05rem; -webkit-line-clamp: 1; }
+.is-phone .mp--lyrics .mp__artist, .is-phone .mp--queue .mp__artist { font-size: 0.85rem; margin-top: 2px; }
+.is-phone .mp__top-spacer { width: auto; }
+.is-phone .mp__close span, .is-phone .mp__seg-btn svg { display: none; }
+.is-phone .mp__close { padding: 8px !important; }
+.is-phone .mp__seg-btn { padding: 8px 12px !important; font-size: 0.85rem !important; }
+.is-phone .mp__line { font-size: 1.45rem; }
+.is-phone .mp__lyrics { padding: 10vh 4px; gap: 18px; }
+.is-phone .mp__transport { gap: 10px; }
+.is-phone .mp__play { width: 70px; height: 70px; }
+.is-phone .mp__icon { width: 46px; height: 46px; }
+.is-phone .mp__icon--lg { width: 56px; height: 56px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mp, .mp.is-closing, .mp__panel, .mp__art-inner, .mp__title, .mp__bg { animation: none !important; }
+  .mp__seg-pill, .mp__line { transition: none; }
+}
+
+/* ----- remote focus: progress bar and lyrics ----- */
+.mp__scrub.focused { height: 12px; margin-top: 6px; box-shadow: 0 0 0 3px var(--accent); }
+.mp__scrub.focused .mp__scrub-fill { background: var(--accent); }
+.mp__scrub.focused .mp__scrub-knob { transform: scale(1.5); background: var(--accent); }
+.mp__scrub-hint { position: absolute; right: 0; top: -30px; font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.85); background: rgba(0,0,0,0.45); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.mp__lyrics-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; border-radius: 18px; transition: box-shadow 0.25s ease, background 0.25s ease; }
+.mp__lyrics-wrap.focused { background: rgba(255, 255, 255, 0.04); box-shadow: inset 0 0 0 2px rgba(var(--accent-rgb), 0.55); }
+.mp__lyrics.is-synced .mp__line.is-cursor { color: #fff; filter: none; transform: translateX(14px); }
+.mp__lyrics.is-synced .mp__line.is-cursor::before { content: '▶'; position: absolute; margin-left: -34px; font-size: 0.6em; line-height: 2.1; color: var(--accent); }
+.player-drawer-zone > * { pointer-events: auto; }
+.mp__top-spacer { display: flex; justify-content: flex-end; }
+.mp__casting { margin: 10px 0 0; display: inline-flex; align-items: center; gap: 8px; font-size: 0.95rem; font-weight: 700; color: var(--accent); }
+
+/* ----- Google Cast remote (video player while casting) ----- */
+.cast-remote { position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 9040; display: flex; align-items: center; justify-content: center; padding: 24px; background: #05070a; }
+.cast-remote__bg { position: absolute; top: 0; right: 0; bottom: 0; left: 0; background-size: cover; background-position: center; filter: blur(30px) brightness(0.35); transform: scale(1.1); }
+.cast-remote__card { position: relative; width: min(640px, 100%); display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 34px 30px; border-radius: 26px; background: rgba(10, 13, 20, 0.72); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6); }
+.cast-remote__device { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: rgba(var(--accent-rgb), 0.15); color: var(--accent); font-weight: 800; font-size: 0.9rem; }
+.cast-remote__title { margin: 6px 0 0; font-size: 2rem; font-weight: 900; color: #fff; line-height: 1.15; }
+.cast-remote__sub { margin: 0; color: rgba(255, 255, 255, 0.65); font-size: 1rem; }
+.cast-remote__bar { position: relative; width: 100%; height: 8px; margin-top: 18px; border-radius: 4px; background: rgba(255, 255, 255, 0.18); cursor: pointer; overflow: hidden; }
+.cast-remote__bar > span { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.5s linear; }
+.cast-remote__times { width: 100%; display: flex; justify-content: space-between; font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); font-variant-numeric: tabular-nums; }
+.cast-remote__controls { display: flex; align-items: center; gap: 22px; margin: 10px 0 6px; }
+.cast-remote__btn { width: 58px; height: 58px; padding: 0 !important; border-radius: 50% !important; justify-content: center; }
+.cast-remote__btn--main { width: 80px; height: 80px; background: #fff !important; color: #000 !important; }
+.cast-remote__actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.is-phone .cast-remote__title { font-size: 1.4rem; }
+.is-phone .cast-remote__card { padding: 24px 18px; }

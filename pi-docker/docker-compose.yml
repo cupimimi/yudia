@@ -1,0 +1,222 @@
+# /docker/docker-compose.yml — Raspberry Pi 5 (Pi OS, arm64)
+#
+# Secrets live in /docker/.env (next to this file, read automatically by Docker Compose).
+# Start / update everything:   cd /docker && docker compose up -d
+# One service only:            docker compose up -d <service>
+
+services:
+
+  # ────────────────────────────── Media server ──────────────────────────────
+
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /docker/jellyfin:/config
+      - /mnt/storage/media:/data:rshared
+    devices:
+      - /dev/dri:/dev/dri
+
+  # Content warnings from DoesTheDogDie.com → Jellyfin tags (ddd:…), once a day.
+  # Code + its own .env (API keys) in /docker/ddd-tagger. Talks to Jellyfin on 127.0.0.1:8096.
+  ddd-tagger:
+    build: ./ddd-tagger
+    container_name: jellyfin-ddd-tagger
+    restart: unless-stopped
+    env_file: ./ddd-tagger/.env
+    network_mode: host
+    depends_on:
+      - jellyfin
+
+  # Yudia website (laptop / any browser). Files: /docker/yudia-web (copy of dist-web/), config: /docker/yudia-web.conf
+  # Open http://<pi-ip>:8099 on the home network.
+  yudia-web:
+    image: nginx:alpine
+    container_name: yudia-web
+    restart: unless-stopped
+    ports:
+      - "8099:80"
+    volumes:
+      - /docker/yudia-web:/usr/share/nginx/html:ro
+      - /docker/yudia-web.conf:/etc/nginx/conf.d/default.conf:ro
+
+  # ──────────────────────────── Home automation ─────────────────────────────
+
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    volumes:
+      - /docker/homeassistant:/config
+      - /etc/localtime:/etc/localtime:ro
+
+  musicassistant:
+    image: ghcr.io/music-assistant/server:latest
+    container_name: musicassistant
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /docker/musicassistant:/data
+      - /mnt/storage/media/music:/media
+
+  # ─────────────────────────── Downloads & indexers ─────────────────────────
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Dublin
+      - WEBUI_PORT=8080
+    ports:
+      - "8080:8080"
+      - "6881:6881"
+      - "6881:6881/udp"
+    volumes:
+      - /docker/qbittorrent:/config
+      - /mnt/storage/downloads:/downloads
+      - /mnt/storage/media:/data
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=info
+      - CAPTCHA_SOLVER=none
+      - TZ=UTC
+    shm_size: "1gb"
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    ports:
+      - "8191:8191"
+
+  tribler:
+    image: ghcr.io/tribler/tribler:latest
+    # amd64-only image: on the Pi it runs through emulation (needs qemu/binfmt), which is slow.
+    platform: linux/amd64
+    container_name: tribler
+    restart: unless-stopped
+    ports:
+      - "5082:5082"
+      - "20000-20005:20000-20005"
+    volumes:
+      - /docker/tribler/config:/root/.Tribler
+      - /mnt/storage/downloads/tribler:/root/Downloads
+
+  # Soulseek client — login comes from /docker/.env
+  slskd:
+    image: slskd/slskd:latest
+    container_name: slskd
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Dublin
+      - SLSKD_APP_DIR=/app
+      - SLSKD_SLSK_USERNAME=${SLSKD_USERNAME:?set SLSKD_USERNAME in /docker/.env}
+      - SLSKD_SLSK_PASSWORD=${SLSKD_PASSWORD:?set SLSKD_PASSWORD in /docker/.env}
+    ports:
+      - "5030:5030"
+      - "50300:50300"
+    volumes:
+      - /docker/slskd:/app
+      - /mnt/storage/downloads/slskd:/downloads
+      - /mnt/storage/media/music:/music:ro
+      - /mnt/storage/media/music:/data/media/music:rw
+
+  pinchflat:
+    image: ghcr.io/kieraneglin/pinchflat:latest
+    container_name: pinchflat
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Dublin
+    ports:
+      - "8945:8945"
+    volumes:
+      - /docker/pinchflat:/config
+      - /mnt/storage/media/Youtube:/downloads
+      - /mnt/storage/media/series:/series
+
+  # ──────────────────────────────── *arr stack ──────────────────────────────
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Dublin
+    ports:
+      - "9696:9696"
+    volumes:
+      - /docker/prowlarr:/config
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Dublin
+      - UMASK=002
+    ports:
+      - "8989:8989"
+    volumes:
+      - /docker/sonarr:/config
+      - /mnt/storage/media:/data
+      - /mnt/storage/downloads:/downloads
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Dublin
+      - UMASK=002
+    ports:
+      - "7878:7878"
+    volumes:
+      - /docker/radarr:/config
+      - /mnt/storage/media:/data
+      - /mnt/storage/downloads:/downloads
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Dublin
+      - UMASK=002
+    ports:
+      - "8686:8686"
+    volumes:
+      - /docker/lidarr:/config
+      - /mnt/storage/media:/data
+      - /mnt/storage/downloads:/downloads
+
+  ombi:
+    image: lscr.io/linuxserver/ombi:latest
+    container_name: ombi
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Dublin
+    ports:
+      - "3579:3579"
+    volumes:
+      - /docker/ombi:/config

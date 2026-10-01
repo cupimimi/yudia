@@ -1,0 +1,1108 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg-dark: #07090e;
+  --bg-card: rgba(255, 255, 255, 0.05);
+  --bg-card-focused: rgba(255, 255, 255, 0.18);
+  --accent-red: #e50914;
+  --accent-apple-blue: #0071e3;
+  --accent-apple-pink: #fa2d48;
+  --accent: #00e5ff;
+  --accent-rgb: 0, 229, 255;
+  --accent-2: #0077ff;
+  --accent-2-rgb: 0, 119, 255;
+  --accent-contrast: #000000;
+  --accent-cyan: var(--accent);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-muted: rgba(255, 255, 255, 0.4);
+  --glass-bg: rgba(18, 18, 24, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --focus-glow: 0 0 30px rgba(255, 255, 255, 0.55);
+  --focus-ring: 3px solid #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body, #root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-dark);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-primary);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Base scrollbar hiding for TV */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Spatial Focus Glow & Micro-animations */
+.focusable {
+  outline: none;
+  transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.2, 1), 
+              box-shadow 0.28s cubic-bezier(0.2, 0.9, 0.2, 1),
+              background-color 0.25s ease,
+              border-color 0.25s ease;
+  will-change: transform, box-shadow;
+}
+
+.focusable.focused {
+  transform: scale(1.05);
+  z-index: 10;
+  box-shadow: var(--focus-glow);
+  border-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Ensure circular profile cards in switcher don't receive rectangular box glow */
+/* The HUD progress bar draws its own focus ring on the track; no scale/glow on the whole row. */
+.hud-progress.focusable.focused {
+  transform: none;
+  box-shadow: none;
+}
+
+.profile-card-enter.focusable.focused {
+  box-shadow: none !important;
+  border-color: transparent !important;
+  border: none !important;
+}
+
+/* =========================================================================
+   LIQUID GLASS SYSTEM (Apple VisionOS / macOS Fluid Glass Aesthetic)
+   ========================================================================= */
+
+.liquid-glass-dock {
+  position: relative;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.04) 30%,
+    rgba(14, 18, 28, 0.65) 60%,
+    rgba(10, 12, 20, 0.85) 100%
+  );
+  backdrop-filter: blur(48px) saturate(240%) contrast(110%);
+  -webkit-backdrop-filter: blur(48px) saturate(240%) contrast(110%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 36px;
+  box-shadow: 
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 6px 0 rgba(0, 0, 0, 0.6),
+    0 20px 50px -10px rgba(0, 0, 0, 0.85);
+  overflow: visible;
+  transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1), 
+              box-shadow 0.35s ease;
+}
+
+/* Fluid Chromatic Glow Aura Behind Dock */
+.liquid-dock-aura {
+  position: absolute;
+  top: -20px; right: -20px; bottom: -20px; left: -20px;
+  border-radius: 46px;
+  background: radial-gradient(
+    circle at 30% 20%,
+    rgba(0, 200, 255, 0.22),
+    rgba(250, 45, 72, 0.15) 50%,
+    rgba(120, 50, 255, 0.12) 80%,
+    transparent 100%
+  );
+  filter: blur(35px);
+  z-index: -1;
+  pointer-events: none;
+  animation: liquidAuraShift 12s ease-in-out infinite alternate;
+}
+
+@keyframes liquidAuraShift {
+  0% { transform: scale(0.95) rotate(0deg); opacity: 0.7; }
+  50% { transform: scale(1.06) rotate(3deg); opacity: 1; }
+  100% { transform: scale(0.98) rotate(-3deg); opacity: 0.8; }
+}
+
+/* Glass Surface Sheen Light Sweep */
+.liquid-glass-sheen {
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  transform: skewX(-25deg);
+  pointer-events: none;
+  animation: glassSheenSweep 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes glassSheenSweep {
+  0% { left: -150%; }
+  35% { left: 200%; }
+  100% { left: 200%; }
+}
+
+/* Liquid Floating Item */
+.liquid-nav-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 13px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  width: 100%;
+  border: 1px solid transparent;
+  background: transparent;
+  transition: all 0.25s cubic-bezier(0.2, 0.9, 0.2, 1);
+  will-change: transform, background-color, box-shadow;
+}
+
+.liquid-nav-btn:hover,
+.liquid-nav-btn.nav-hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.liquid-nav-btn.nav-active {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.6),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.liquid-nav-btn.focused {
+  transform: scale(1.08) translateX(6px);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.38) 0%,
+    rgba(255, 255, 255, 0.16) 100%
+  ) !important;
+  border: 1.5px solid #ffffff !important;
+  box-shadow: 
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.8),
+    0 12px 30px rgba(0, 0, 0, 0.6),
+    0 0 25px rgba(255, 255, 255, 0.45) !important;
+  z-index: 10;
+}
+
+/* Animated Music Soundwave Equalizer */
+.sound-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 16px;
+}
+
+.sound-bar {
+  width: 3px;
+  background-color: #fa2d48;
+  border-radius: 2px;
+  animation: bounceBars 1s ease-in-out infinite alternate;
+}
+
+.sound-bar:nth-child(1) { height: 60%; animation-delay: 0.1s; }
+.sound-bar:nth-child(2) { height: 100%; animation-delay: 0.3s; }
+.sound-bar:nth-child(3) { height: 40%; animation-delay: 0.2s; }
+.sound-bar:nth-child(4) { height: 80%; animation-delay: 0.4s; }
+
+@keyframes bounceBars {
+  0% { transform: scaleY(0.3); }
+  100% { transform: scaleY(1); }
+}
+
+/* Glassmorphism Frosted Acrylic Panel */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid var(--glass-border);
+}
+
+/* Gradient Hero Overlay */
+.hero-gradient-bottom {
+  background: linear-gradient(to top, var(--bg-dark) 0%, rgba(7, 9, 14, 0.8) 40%, rgba(7, 9, 14, 0) 100%);
+}
+
+.hero-gradient-left {
+  background: linear-gradient(to right, var(--bg-dark) 10%, rgba(7, 9, 14, 0.85) 45%, rgba(7, 9, 14, 0) 100%);
+}
+
+/* TV Remote On-screen Test Overlay for Browser */
+.desktop-remote-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  opacity: 0.88;
+  transition: opacity 0.2s ease;
+}
+.desktop-remote-container:hover {
+  opacity: 1;
+}
+
+/* Subtle Shimmer Animation */
+@keyframes pulseGlow {
+  0% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.4; }
+}
+
+/* =========================================================================
+   PROFILE SWITCHING CINEMATIC TRANSITIONS
+   ========================================================================= */
+
+@keyframes profileSpinLoading {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes profileAuraPulse {
+  0% {
+    box-shadow: 0 0 35px rgba(var(--accent-rgb), 0.4), 0 0 70px rgba(0, 113, 227, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 65px rgba(var(--accent-rgb), 0.8), 0 0 120px rgba(121, 40, 202, 0.6);
+    transform: scale(1.04);
+  }
+  100% {
+    box-shadow: 0 0 35px rgba(var(--accent-rgb), 0.4), 0 0 70px rgba(0, 113, 227, 0.3);
+    transform: scale(1);
+  }
+}
+
+@keyframes floatUpReveal {
+  0% {
+    transform: translateY(0) scale(1.4);
+    opacity: 1;
+  }
+  40% {
+    transform: translateY(-20px) scale(1.45);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-130vh) scale(0.6);
+    opacity: 0;
+  }
+}
+
+@keyframes curtainReveal {
+  0% {
+    opacity: 1;
+    backdrop-filter: blur(36px);
+  }
+  70% {
+    opacity: 0.6;
+    backdrop-filter: blur(16px);
+  }
+  100% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    pointer-events: none;
+  }
+}
+
+@keyframes homeContentReveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.96) translateY(24px);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0px);
+  }
+}
+
+/* =========================================================================
+   DYNAMIC FLUID REMOTE POINTER & CATEGORY TRANSITIONS
+   ========================================================================= */
+
+@keyframes pointerBubblePulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+}
+
+@keyframes pointerRipple {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.category-view-container {
+  animation: categoryViewSlide 0.32s cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes categoryViewSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.985);
+    filter: blur(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+.profile-card-enter {
+  animation: profileCardPopIn 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.25) backwards;
+}
+
+@keyframes profileCardPopIn {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.82);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Animated Music Equalizer Bars */
+.equalizer-bar {
+  display: inline-block;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(to top, var(--accent), #38bdf8);
+  border-radius: 2px;
+  animation: bounceEqualizer 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes bounceEqualizer {
+  0% { height: 20%; }
+  50% { height: 100%; }
+  100% { height: 35%; }
+}
+
+/* Profile Avatar Shake & Welcome Bubble Animations */
+@keyframes avatarWobble {
+  0% { transform: rotate(0deg) scale(1); }
+  15% { transform: rotate(-14deg) scale(1.14); }
+  30% { transform: rotate(12deg) scale(1.14); }
+  45% { transform: rotate(-10deg) scale(1.08); }
+  60% { transform: rotate(7deg) scale(1.04); }
+  75% { transform: rotate(-3deg) scale(1.02); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+.avatar-shaking {
+  animation: avatarWobble 0.85s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes bubbleExtend {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.4) translateX(-20px);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.05) translateX(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1) translateX(0);
+  }
+}
+
+@keyframes bubbleRetract {
+  0% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1) translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.6) translateX(-15px);
+  }
+}
+
+.welcome-bubble-enter {
+  animation: bubbleExtend 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.welcome-bubble-exit {
+  animation: bubbleRetract 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Rotating Vinyl Record Animation */
+@keyframes spin-vinyl {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spin-vinyl {
+  animation: spin-vinyl 10s linear infinite;
+}
+
+.spin-vinyl.paused {
+  animation-play-state: paused;
+}
+
+/* Now Playing Widget Expand Animation */
+@keyframes nowPlayingPanelExtend {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.7) translateX(-20px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.03) translateX(3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1) translateX(0);
+  }
+}
+
+.now-playing-panel-enter {
+  animation: nowPlayingPanelExtend 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Command button hover & remote focus styles */
+.now-playing-cmd-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.now-playing-cmd-btn:hover {
+  background: rgba(250, 45, 72, 0.25);
+  border-color: rgba(250, 45, 72, 0.6);
+  transform: scale(1.08);
+}
+
+.now-playing-cmd-btn:focus,
+.now-playing-cmd-btn.focused {
+  background: linear-gradient(135deg, rgba(250, 45, 72, 0.9) 0%, rgba(220, 20, 60, 0.95) 100%) !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+  transform: scale(1.18) !important;
+  box-shadow: 0 0 16px rgba(250, 45, 72, 0.9), 0 0 28px rgba(255, 255, 255, 0.6) !important;
+  outline: none !important;
+}
+
+/* =========================================================================
+   NETFLIX POST-PLAY END CREDITS ANIMATIONS & PIP STYLING
+   ========================================================================= */
+@keyframes netflixSlideInRight {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) translateX(60px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0) scale(1);
+  }
+}
+
+@keyframes netflixPulseBorder {
+  0%, 100% {
+    border-color: rgba(var(--accent-rgb), 0.7);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), 0 0 28px rgba(var(--accent-rgb), 0.35);
+  }
+  50% {
+    border-color: rgba(var(--accent-rgb), 1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), 0 0 45px rgba(var(--accent-rgb), 0.65);
+  }
+}
+
+@keyframes netflixPulseDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+.netflix-video-card-glow {
+  animation: netflixPulseBorder 3s infinite ease-in-out;
+}
+
+.netflix-red-dot {
+  animation: netflixPulseDot 1.4s infinite ease-in-out;
+}
+
+/* =========================================================================
+   CINEMATIC DETAIL MODAL TRANSITION (Film & Series Selection)
+   ========================================================================= */
+@keyframes modalCinematicFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes modalCinematicBackdropZoom {
+  0% {
+    opacity: 0;
+    transform: scale(1.08);
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes modalCinematicContentSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalCinematicTopBarSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-cinematic-container {
+  animation: modalCinematicFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.modal-cinematic-backdrop {
+  animation: modalCinematicBackdropZoom 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity, filter;
+}
+
+.modal-cinematic-topbar {
+  animation: modalCinematicTopBarSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.modal-cinematic-content {
+  animation: modalCinematicContentSlide 0.48s cubic-bezier(0.16, 1, 0.3, 1) 0.05s backwards;
+  will-change: transform, opacity;
+}
+
+/* =========================================================================
+   CINEMATIC MEDIA LAUNCH ANIMATION
+   ========================================================================= */
+@keyframes mediaLaunchBackdropZoom {
+  0% {
+    transform: scale(1.15);
+    filter: brightness(0.2) blur(30px);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+    filter: brightness(0.25) blur(18px);
+  }
+  100% {
+    transform: scale(1.05);
+    filter: brightness(0.3) blur(12px);
+    opacity: 1;
+  }
+}
+
+@keyframes mediaLaunchCardZoom {
+  0% {
+    opacity: 0;
+    transform: scale(0.88) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes mediaLaunchHaloPulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.4;
+    box-shadow: 0 0 30px rgba(var(--accent-rgb), 0.4), inset 0 0 20px rgba(124, 77, 255, 0.4);
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.9;
+    box-shadow: 0 0 60px rgba(var(--accent-rgb), 0.8), 0 0 100px rgba(124, 77, 255, 0.6), inset 0 0 30px rgba(var(--accent-rgb), 0.6);
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.4;
+    box-shadow: 0 0 30px rgba(var(--accent-rgb), 0.4), inset 0 0 20px rgba(124, 77, 255, 0.4);
+  }
+}
+
+@keyframes mediaLaunchShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes mediaLaunchFadeOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.06);
+    pointer-events: none;
+  }
+}
+
+.media-launch-overlay {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.media-launch-overlay.fade-out {
+  animation: mediaLaunchFadeOut 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.media-launch-backdrop {
+  animation: mediaLaunchBackdropZoom 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, filter, opacity;
+}
+
+.media-launch-card {
+  animation: mediaLaunchCardZoom 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.media-launch-halo {
+  animation: mediaLaunchHaloPulse 2.2s infinite ease-in-out;
+}
+
+
+/* =============================================================================
+   SMOOTH MODE (html.perf-lite) — TVs / The Freestyle. See src/theme/performance.ts.
+   Same layout and colours, minus the effects a small TV chip can't render smoothly.
+   `!important` in a stylesheet wins over the components' inline styles.
+   ============================================================================= */
+
+/* 1. Live background blur is re-computed every frame something moves underneath (e.g. the player HUD over
+      playing video). The panels already have semi-opaque backgrounds, so they read the same without it. */
+.perf-lite *,
+.perf-lite *::before,
+.perf-lite *::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* 2. "transition: all" also animates big glowing shadows and layout on every remote press.
+      Keep only properties the GPU composites cheaply. */
+.perf-lite *,
+.perf-lite *::before,
+.perf-lite *::after {
+  transition-property: opacity, transform, background-color, border-color, color !important;
+}
+
+/* 3. Endless decorative loops (the sheen animates `left` → full relayout every frame). */
+.perf-lite .liquid-dock-aura,
+.perf-lite .liquid-glass-sheen,
+.perf-lite .netflix-video-card-glow,
+.perf-lite .netflix-red-dot,
+.perf-lite .media-launch-halo {
+  animation: none !important;
+}
+.perf-lite .liquid-glass-sheen {
+  display: none !important;
+}
+
+/* 4. Age-rating popup: keep the entrance, drop the endless glow (it animates a filter every frame). */
+.perf-lite .advisory__tri {
+  animation: advTriIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both !important;
+  filter: drop-shadow(0 0 6px var(--adv)) !important;
+}
+.perf-lite .advisory.is-leaving .advisory__tri { animation: advTriOut 0.3s ease-in 0.65s both !important; }
+
+/* =============================================================================
+   MOUSE / LAPTOP (website version). Only devices with a real pointer that can hover —
+   TVs and The Freestyle never match, so nothing here affects the remote experience.
+   ============================================================================= */
+.row-arrow { display: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  /* Hover looks like remote focus */
+  .focusable:hover {
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: var(--focus-glow);
+    border-color: rgba(255, 255, 255, 0.95) !important;
+  }
+  .hud-progress.focusable:hover { transform: none; box-shadow: none; }
+
+  /* ‹ › row paging buttons, shown while the pointer is over the row */
+  .row-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 10px;
+    bottom: 20px;
+    width: 56px;
+    z-index: 20;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .row-arrow--left { left: 0; background: linear-gradient(90deg, rgba(7, 9, 14, 0.92), transparent); }
+  .row-arrow--right { right: 0; background: linear-gradient(-90deg, rgba(7, 9, 14, 0.92), transparent); }
+  .media-row-scroller:hover .row-arrow { opacity: 1; }
+  .row-arrow:hover { color: var(--accent); }
+}
+
+/* =============================================================================
+   PHONE (html.is-phone — see src/theme/responsive.ts). Single column, top bar + ☰ menu.
+   ============================================================================= */
+.mobile-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  padding: 0 10px calc(0px) 6px;
+  padding-top: env(safe-area-inset-top);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 8800;
+  background: linear-gradient(to bottom, rgba(7, 9, 14, 0.97), rgba(7, 9, 14, 0.88));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.mobile-drawer-backdrop {
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  z-index: 8850;
+  background: rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.mobile-drawer-backdrop.is-open { opacity: 1; pointer-events: auto; }
+.mobile-drawer {
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  width: min(82vw, 320px);
+  z-index: 8860;
+  background: #0c0f17;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 20px 0 60px rgba(0, 0, 0, 0.6);
+  transform: translateX(-105%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+  padding-top: env(safe-area-inset-top);
+}
+.mobile-drawer.is-open { transform: none; }
+.mobile-drawer__item,
+.mobile-drawer__profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 14px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font: 700 1.02rem Inter, sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+.mobile-drawer__profile { margin: 0 12px 6px; width: calc(100% - 24px); background: rgba(255, 255, 255, 0.05); gap: 12px; padding: 12px; }
+.mobile-drawer__item.is-active { background: rgba(var(--accent-rgb), 0.14); color: var(--accent); }
+.mobile-drawer__item:active { background: rgba(255, 255, 255, 0.08); }
+
+/* page frame */
+.is-phone .app-main {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-top: calc(68px + env(safe-area-inset-top)) !important;
+}
+.is-phone .sync-badge { top: auto !important; bottom: 16px !important; right: 12px !important; transform: scale(0.85); transform-origin: bottom right; }
+.is-phone body:has(.mobile-nowplaying) .sync-badge { bottom: calc(92px + env(safe-area-inset-bottom)) !important; }
+
+/* now playing bar (docked at the bottom while a song is loaded) */
+.mobile-nowplaying {
+  position: fixed;
+  left: 8px;
+  right: 8px;
+  bottom: calc(8px + env(safe-area-inset-bottom));
+  height: 68px;
+  z-index: 8700;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 6px 0 8px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(22, 26, 38, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  animation: mobile-nowplaying-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.mobile-nowplaying:active { background: rgba(30, 35, 50, 0.98); }
+@keyframes mobile-nowplaying-in { from { transform: translateY(120%); } to { transform: translateY(0); } }
+.mobile-nowplaying__progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--accent);
+  transition: width 0.3s linear;
+}
+.mobile-nowplaying__art {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+}
+.mobile-nowplaying__art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mobile-nowplaying__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mobile-nowplaying__title,
+.mobile-nowplaying__artist { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mobile-nowplaying__title { font-size: 0.95rem; font-weight: 800; color: #fff; }
+.mobile-nowplaying__artist { font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); }
+.mobile-nowplaying__btn {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+.mobile-nowplaying__btn:active { background: rgba(255, 255, 255, 0.12); }
+@media (prefers-reduced-motion: reduce) { .mobile-nowplaying { animation: none; } }
+
+/* hero */
+.is-phone .hero { border-radius: 0 !important; height: 62vh !important; min-height: 440px !important; margin-bottom: 8px !important; box-shadow: none !important; }
+.is-phone .hero__content { left: 16px !important; right: 16px !important; bottom: 44px !important; max-width: none !important; gap: 10px !important; }
+.is-phone .hero__title { font-size: 2rem !important; line-height: 1.1 !important; }
+.is-phone .hero__overview { font-size: 0.9rem !important; -webkit-line-clamp: 3; }
+.is-phone .hero__actions { gap: 10px !important; margin-top: 4px !important; flex-wrap: wrap; }
+.is-phone .hero__actions > * { padding: 10px 16px !important; font-size: 0.9rem !important; min-height: 44px; }
+.is-phone .hero__dots { right: 50% !important; transform: translateX(50%); bottom: 16px !important; }
+
+/* rows & cards */
+.is-phone .media-row__title { padding-left: 16px !important; font-size: 1.1rem !important; }
+.is-phone .media-row__track { padding-left: 16px !important; padding-right: 16px !important; gap: 12px !important; padding-top: 4px !important; padding-bottom: 8px !important; scroll-snap-type: x proximity; }
+.is-phone .media-row__track > .media-card { scroll-snap-align: start; }
+.is-phone .media-card--poster { width: 120px !important; height: 180px !important; }
+.is-phone .media-card--backdrop { width: 240px !important; height: 135px !important; }
+.is-phone .media-card--square { width: 130px !important; height: 130px !important; }
+/* phone grid: 3 posters per line, full width (phones all support aspect-ratio; the TV grid uses fixed sizes) */
+.is-phone .media-row__track--grid { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 16px 10px !important; }
+.is-phone .media-row__track--grid > .media-card { width: auto !important; height: auto !important; aspect-ratio: 2 / 3; }
+.is-phone .media-row__track--grid > .media-card--backdrop { aspect-ratio: 16 / 9; grid-column: span 3; }
+.is-phone .media-row__track--grid > .media-card--square { aspect-ratio: 1; }
+@media (min-width: 560px) { .is-phone .media-row__track--grid { grid-template-columns: repeat(4, 1fr); } }
+/* touch: no hover zoom on cards */
+.is-phone .focusable.focused, .is-phone .focusable:hover { transform: none !important; }
+.is-phone .page-title { font-size: 1.7rem !important; padding: 0 16px; margin-bottom: 10px !important; }
+
+/* movie / series detail pages (both use .modal-cinematic-container) */
+.is-phone .modal-cinematic-container [style*="px 64px"] { padding-left: 16px !important; padding-right: 16px !important; }
+.is-phone .modal-cinematic-container [style*="font-size: 3.1rem"] { font-size: 2rem !important; line-height: 1.1 !important; }
+.is-phone .modal-cinematic-container div:has(> button.focusable) { flex-wrap: wrap !important; }
+.is-phone .modal-cinematic-container button.focusable { padding: 12px 18px !important; font-size: 0.95rem !important; }
+.is-phone .modal-cinematic-container [style*="grid-template-columns"] { grid-template-columns: 1fr 1fr !important; }
+
+/* settings: categories become a swipeable strip of tabs above a full-width panel */
+.is-phone .settings-layout { flex-direction: column !important; gap: 12px !important; min-height: 0 !important; padding-bottom: 40px !important; }
+.is-phone .settings-nav { width: auto !important; flex-direction: row !important; overflow-x: auto; padding: 0 16px 4px; gap: 8px !important; scrollbar-width: none; }
+.is-phone .settings-nav::-webkit-scrollbar { display: none; }
+.is-phone .settings-nav > :first-child { display: none; }            /* big "Settings" heading: the page is already titled by the tab */
+.is-phone .settings-nav > button { width: auto !important; flex-shrink: 0; white-space: nowrap; padding: 10px 14px !important; font-size: 0.85rem !important; }
+.is-phone .settings-nav > button > svg:last-child:not(:first-child) { display: none; } /* the "›" chevron (an icon, not the label) */
+.is-phone .settings-nav > div:last-child:not(:first-child) { display: none; }       /* profile card at the bottom of the TV column */
+.is-phone .settings-panel { margin: 0 12px; padding: 20px 16px !important; border-radius: 20px !important; gap: 20px !important; }
+.is-phone .settings-panel [style*="px 24px"] { padding-left: 16px !important; padding-right: 16px !important; }
+.is-phone .settings-panel [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+.is-phone .settings-panel div:has(> button.focusable) { flex-wrap: wrap !important; }
+.is-phone .settings-nav > button.focused, .is-phone .settings-nav > button { box-shadow: none !important; }
+
+/* video player */
+.is-phone .player-topbar { padding: calc(10px + env(safe-area-inset-top)) 12px 10px !important; gap: 8px; }
+.is-phone .player-topbar h2 { font-size: 1rem !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 44vw; }
+.is-phone .player-topbar p { display: none; }
+.is-phone .player-topbar button.focusable { padding: 9px 10px !important; gap: 0 !important; }
+.is-phone .player-topbar button.focusable > span { display: none; }          /* icons only: Quality, Subtitles, Audio… */
+.is-phone .player-topbar > div { gap: 6px !important; min-width: 0; }
+.is-phone .player-hud { left: 8px !important; right: 8px !important; bottom: calc(8px + env(safe-area-inset-bottom)) !important; padding: 12px 12px 10px !important; border-radius: 18px !important; gap: 8px !important; }
+.is-phone .player-hud .hud-progress { gap: 8px !important; }
+.is-phone .player-hud .hud-progress > span:first-child { min-width: 0 !important; font-size: 0.78rem !important; }
+.is-phone .player-hud .hud-progress > div:last-child { min-width: 0 !important; font-size: 0.75rem !important; gap: 4px !important; }
+.is-phone .player-hud .hud-progress > div:last-child > span:nth-child(-n+2) { display: none; }  /* keep total time only */
+.is-phone .player-hud > div:last-child { justify-content: center !important; }
+.is-phone .player-hud > div:last-child > div[style*="flex: 1"]:first-child { display: none; }  /* left spacer */
+.is-phone .player-hud > div:last-child > div { gap: 8px !important; flex: 0 0 auto !important; }
+.is-phone .player-hud button.focusable { padding: 10px 12px !important; gap: 6px !important; font-size: 0.85rem !important; }
+.is-phone .player-hud button.focusable > span { display: none; }              /* "-10s", "Mute": icons only */
+.is-phone .player-topbar > div:first-child button.focusable { font-size: 0 !important; padding: 9px 10px !important; } /* "← Back" → "←" */
+.is-phone .player-topbar > div:first-child { gap: 10px !important; min-width: 0; flex: 1; }
+.is-phone .player-topbar > div:first-child > div { min-width: 0; }
+.is-phone .player-topbar h2 { max-width: none; }
+
+/* search */
+.is-phone .search-modal { padding: calc(16px + env(safe-area-inset-top)) 12px 12px !important; }
+.is-phone .search-modal [style*="grid-template-columns"] { grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; }
+.is-phone .search-modal .media-card { width: auto !important; height: auto !important; aspect-ratio: 2 / 3; }
+
+/* live TV */
+.is-phone .live-tv { padding: 8px 12px 40px !important; }
+.is-phone .live-row { flex-wrap: wrap; gap: 10px 12px !important; padding: 12px !important; }
+.is-phone .live-row > span:first-child { width: auto !important; font-size: 1rem !important; }
+.is-phone .live-row > div:nth-child(2) { width: 64px !important; height: 40px !important; }
+.is-phone .live-row > div:nth-child(3) { width: auto !important; flex: 1; font-size: 1rem !important; }
+.is-phone .live-row > div:nth-child(4) { flex-basis: 100% !important; }
+
+/* sad jellyfish (empty states) — gentle bob, tentacle sway; still with reduced motion */
+.sad-jelly__body { animation: jellyBob 3.6s ease-in-out infinite; transform-origin: 96px 90px; }
+.sad-jelly__screen { animation: jellyBob 3.6s ease-in-out 0.25s infinite; }
+.sad-jelly__tentacle { animation: jellySway 2.8s ease-in-out infinite alternate; transform-origin: top; transform-box: fill-box; }
+.sad-jelly__tentacle:nth-child(2) { animation-delay: 0.4s; }
+.sad-jelly__tentacle:nth-child(3) { animation-delay: 0.8s; }
+.sad-jelly__tear { animation: jellyTear 2.4s ease-in 1s infinite; }
+@keyframes jellyBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes jellySway { from { transform: skewX(-6deg); } to { transform: skewX(6deg); } }
+@keyframes jellyTear { 0%, 60% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(16px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .sad-jelly * { animation: none !important; } }
+
+/* ===== Up Next screen (next episode) ===== */
+@keyframes upnextZoom { from { transform: scale(1.06); } to { transform: scale(1); } }
+@keyframes upnextRise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+.upnext-info {
+  position: absolute;
+  left: 40%;
+  right: 6%;
+  top: 18%;
+  z-index: 9020;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 26px 30px;
+  border-radius: 22px;
+  background: rgba(10, 13, 20, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  animation: upnextRise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.upnext-info__kicker { font-size: 0.9rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+.upnext-info__title { margin: 0; font-size: 2.4rem; font-weight: 900; line-height: 1.1; letter-spacing: -0.02em; color: #fff; }
+.upnext-info__meta { font-size: 0.95rem; font-weight: 700; color: rgba(255, 255, 255, 0.6); }
+.upnext-info__intro {
+  margin: 4px 0 0;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.82);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.upnext-actions {
+  position: absolute;
+  left: 40%;
+  top: calc(46% + 16.875vw);
+  transform: translateY(-100%);
+  z-index: 9020;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  animation: upnextRise 0.5s 0.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.upnext-timer {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.perf-lite .upnext-info { background: rgba(10, 13, 20, 0.9); }
+.perf-lite .upnext-bg img { animation: none !important; }
+
+/* phone (landscape player) */
+.is-phone .upnext-credits { top: 38% !important; left: 4% !important; width: 42vw !important; height: 23.6vw !important; border-radius: 12px !important; }
+.is-phone .upnext-info { left: 50%; right: 4%; top: 8%; padding: 14px 16px; gap: 6px; border-radius: 16px; }
+.is-phone .upnext-info__kicker { font-size: 0.7rem; }
+.is-phone .upnext-info__title { font-size: 1.3rem; }
+.is-phone .upnext-info__meta { font-size: 0.78rem; }
+.is-phone .upnext-info__intro { font-size: 0.82rem; -webkit-line-clamp: 3; }
+.is-phone .upnext-actions { left: 50%; right: 4%; top: auto; bottom: 6%; transform: none; gap: 10px; flex-wrap: wrap; }
+@media (orientation: portrait) {
+  .is-phone .upnext-credits { top: 10% !important; left: 4% !important; width: 92vw !important; height: 51.75vw !important; }
+  .is-phone .upnext-info { left: 4%; top: calc(12% + 51.75vw); }
+  .is-phone .upnext-actions { left: 4%; }
+}
+
+/* Phones: no pull-to-refresh (it reloaded the page and cut the music) */
+html.is-phone, html.is-phone body { overscroll-behavior-y: none; }
+.is-phone .app-main { overscroll-behavior-y: contain; }

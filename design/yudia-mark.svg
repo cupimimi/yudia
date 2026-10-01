@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="100 80 340 350" role="img" aria-label="Yudia">
+  <defs>
+    <linearGradient id="yudia-g" gradientUnits="userSpaceOnUse" x1="140" y1="110" x2="420" y2="400">
+      <stop offset="0" stop-color="#00e5ff"/>
+      <stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <path d="M170 104 C150 92 128 104 128 128 V384 C128 408 150 420 170 408 L396 278 C416 266 416 246 396 234 Z" fill="url(#yudia-g)"/>
+  <g stroke="#0d1324" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M190 190 L232 250 L274 190"/>
+    <path d="M232 250 V332"/>
+  </g>
+</svg>

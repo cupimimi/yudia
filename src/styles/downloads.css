@@ -1,0 +1,63 @@
+/* =============================================================================
+   DOWNLOADS (website: phones / laptops)
+   ============================================================================= */
+.dl-page { display: flex; flex-direction: column; gap: 28px; padding-bottom: 60px; }
+.dl-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.dl-title { margin: 0; font-size: 2.4rem; font-weight: 900; letter-spacing: -0.02em; }
+.dl-sub { margin: 6px 0 0; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 0.95rem; color: rgba(255, 255, 255, 0.6); }
+.dl-offline { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; background: rgba(255, 176, 32, 0.15); color: #ffb020; font-weight: 700; }
+.dl-section { display: flex; flex-direction: column; gap: 14px; }
+.dl-h2 { margin: 0; display: flex; align-items: center; gap: 10px; font-size: 1.4rem; font-weight: 800; color: #fff; }
+.dl-note { margin: 0; color: rgba(255, 255, 255, 0.6); font-size: 0.92rem; max-width: 760px; }
+.dl-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.dl-list { display: flex; flex-direction: column; gap: 6px; }
+
+.dl-row { display: flex; align-items: center; gap: 14px; padding: 8px 10px; border-radius: 14px; background: rgba(255, 255, 255, 0.035); }
+.dl-row__play { flex: 1; min-width: 0; display: flex; align-items: center; gap: 14px; padding: 4px; border-radius: 10px; cursor: pointer; }
+.dl-row__play.focused { background: rgba(255, 255, 255, 0.12); box-shadow: inset 0 0 0 2px var(--accent); transform: none; }
+.dl-row__play.is-current .dl-row__title { color: var(--accent); }
+.dl-row__icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.08); color: var(--accent); flex-shrink: 0; }
+.dl-row__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.dl-row__title { font-size: 1rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dl-row__sub { font-size: 0.84rem; color: rgba(255, 255, 255, 0.58); display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dl-row__sub.is-error { color: #ffb020; white-space: normal; }
+.dl-bar { display: block; height: 5px; margin-top: 4px; border-radius: 3px; background: rgba(255, 255, 255, 0.12); overflow: hidden; }
+.dl-bar > span { display: block; height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s linear; }
+
+.dl-thumb { width: 48px; height: 48px; flex-shrink: 0; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.35); }
+.dl-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dl-thumb--wide { width: 120px; height: 68px; }
+.dl-thumb--show { width: 64px; height: 96px; border-radius: 10px; }
+.dl-thumb--poster { width: 100%; height: 100%; border-radius: 0; }
+
+.dl-show { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 18px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); }
+.dl-show__head { display: flex; align-items: center; gap: 14px; }
+.dl-show__title { font-size: 1.2rem; font-weight: 800; color: #fff; }
+
+.dl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 24px 18px; }
+.dl-card { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.dl-card__poster { position: relative; width: 100%; padding-top: 150%; border-radius: 14px; overflow: hidden; background: rgba(255, 255, 255, 0.06); cursor: pointer; }
+.dl-card__poster > .dl-thumb { position: absolute; top: 0; left: 0; }
+.dl-card__poster.focused { box-shadow: 0 0 0 3px var(--accent), 0 14px 32px rgba(0, 0, 0, 0.6); }
+.dl-card__play { position: absolute; right: 10px; bottom: 10px; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--accent); color: var(--accent-contrast); opacity: 0; transition: opacity 0.2s; }
+.dl-card__poster.focused .dl-card__play, .dl-card__poster:hover .dl-card__play { opacity: 1; }
+.dl-card__title { font-weight: 700; color: #fff; font-size: 0.98rem; }
+.dl-card__sub { font-size: 0.82rem; color: rgba(255, 255, 255, 0.55); }
+
+/* progress ring on the small (episode) download button */
+.dl-ring {
+  position: absolute; top: -2px; right: -2px; bottom: -2px; left: -2px; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(var(--accent) var(--p), transparent 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+}
+.music-track__dl { color: var(--accent); flex-shrink: 0; }
+.music-btn--dl { border-radius: 999px !important; padding: 12px 26px !important; font-weight: 800 !important; }
+
+/* phone */
+.is-phone .dl-page { padding: 0 16px 40px; gap: 22px; }
+.is-phone .dl-title { font-size: 1.8rem; }
+.is-phone .dl-thumb--wide { width: 96px; height: 54px; }
+.is-phone .dl-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 18px 12px; }
+.is-phone .dl-row { padding: 6px; gap: 8px; }
+.is-phone .dl-row button span:not(:first-child) { display: none; }

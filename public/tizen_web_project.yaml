@@ -1,0 +1,49 @@
+# Tizen extension / tz CLI project file. Lives in public/ so every `npm run build` copies it into dist/,
+# which is the folder to package (never public/ itself — it has no app code).
+
+# Project type [web_app, test_runner]
+project_type: web_app
+
+# Samsung TV / The Freestyle
+profile: tv-samsung
+api_version: "6.0"
+
+# Build type [Debug/ Release/ Test]
+build_type: Release
+
+# Output name for application → Yudia.wgt
+output_name: Yudia
+
+# Output path for build
+output_path: ""
+
+# Enable size optimization of wgt for web workspace
+opt: false
+
+# Signing profile: "" = active profile (Tizen extension → Certificate Manager)
+signing_profile: ""
+
+# list of certs in web project (.trust-anchor)
+trust_anchor: []
+
+# Files of the app (everything the Vite build produced)
+files:
+  - index.html
+  - config.xml
+  - icon.png
+  - favicon.svg
+  - assets/*
+
+# list of files to exclude based on the matched patterns
+excludes:
+  - Build/*
+  - Debug/*
+  - Release/*
+  - Test/*
+  - \.tizen-rds/.*
+  - \.sign/.*
+  - \.wgt
+  - tizen_web_project.yaml
+
+# project dependencies
+deps: []
